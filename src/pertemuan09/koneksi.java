@@ -17,6 +17,7 @@ public class koneksi {
             
         }catch(ClassNotFoundException | SQLException e){
             System.out.println("Koneksi ke DBMS MySQL gagal");
+            System.exit(0);
         }
         return cnn;
     }

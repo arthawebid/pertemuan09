@@ -9,7 +9,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
-import java.awt.image.BufferedImage;
 import javax.swing.ImageIcon;
 
 /**
@@ -26,11 +25,14 @@ public class jForm1 extends javax.swing.JFrame {
      */
     public jForm1() throws SQLException {
         initComponents();
+        ImageIcon imageIcon = new ImageIcon("img/photo.png");
+        this.setIconImage(imageIcon.getImage());
         jTable1.setModel(TM);
         TM.addColumn("IDTeman");
         TM.addColumn("Nama");
         TM.addColumn("Alamat");
         TM.addColumn("Telp");
+        TM.addColumn("JenisKelamin");
         
 //        Object[] dta = new Object[3];
 //        dta[0] = "Wayan Aruni";
@@ -47,6 +49,13 @@ public class jForm1 extends javax.swing.JFrame {
 //        dta[1] = "Jl. Saja susah";
 //        dta[2] = "08877666";
 //        TM.addRow(dta);
+        String[] jkx = {"Pilih Jenis Kelamin","Laki-Laki","Perempuan"};
+        jk.setSelectedIndex(2);
+        jk.removeAllItems();
+        jk.addItem(jkx[0]);
+        jk.addItem(jkx[1]);
+        jk.addItem(jkx[2]);
+        jk.setSelectedIndex(0);
         
         kosongkanform();
         list_all();
@@ -58,15 +67,17 @@ public class jForm1 extends javax.swing.JFrame {
 
     }
     private void loadphoto(String idx){
-        String urlGambarNull = "src/img/photo.png";
-        String urlGambar = "src/img/photo"+idx+ ".png";
-        BufferedImage loadImg = loadIMG.loadImage(urlGambar);
-        if(loadImg == null){
-            loadImg = loadIMG.loadImage(urlGambarNull);
+        String urlGambar = "img/photo"+idx+ ".png";
+        if(idx.equals("")){
+            urlGambar = "img/photo.png";
         }
-        ImageIcon imageIcon = new ImageIcon(loadImg);
+        
+        //BufferedImage loadImg = loadIMG.loadImage(urlGambar);
+        //if(loadImg == null){
+        //    loadImg = loadIMG.loadImage(urlGambarNull);
+        //}
+        ImageIcon imageIcon = new ImageIcon(urlGambar);
         phteman.setIcon(imageIcon);
-
     }
     private void list_all() throws SQLException{
         Connection cnn = buatkoneks();
@@ -79,11 +90,12 @@ public class jForm1 extends javax.swing.JFrame {
             PreparedStatement ps = cnn.prepareStatement("SELECT * FROM teman;");
             ResultSet rs = ps.executeQuery();
             while(rs.next()){
-                Object[] dta = new Object[4];
+                Object[] dta = new Object[5];
                 dta[0] = rs.getInt("idteman");
                 dta[1] = rs.getString("nama");
                 dta[2] = rs.getString("alamat");
                 dta[3] = rs.getString("telp");
+                dta[4] = rs.getString("jk");
                 
                 TM.addRow(dta);
             }
@@ -108,12 +120,14 @@ public class jForm1 extends javax.swing.JFrame {
         String NM = txNAMA.getText();
         String AL = txALAMAT.getText();
         String TL = txTELP.getText();
+        String JK = String.valueOf(jk.getSelectedItem());
         if(!cnn.isClosed()){
-            PreparedStatement ps = cnn.prepareStatement("UPDATE teman SET nama=?, alamat=?, telp=? WHERE idteman=?;");
+            PreparedStatement ps = cnn.prepareStatement("UPDATE teman SET nama=?, alamat=?, telp=?, jk=? WHERE idteman=?;");
             ps.setString(1, NM);
             ps.setString(2, AL);
             ps.setString(3, TL);
-            ps.setInt(4, idx);
+            ps.setString(4, JK);
+            ps.setInt(5, idx);
             ps.executeUpdate();
         }
     }
@@ -156,15 +170,18 @@ public class jForm1 extends javax.swing.JFrame {
         txALAMAT = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
         txTELP = new javax.swing.JTextField();
-        jLabel5 = new javax.swing.JLabel();
         txIDTEMAN = new javax.swing.JTextField();
         cTambah = new javax.swing.JButton();
         cUpdate = new javax.swing.JButton();
         cDelete = new javax.swing.JButton();
         cClose = new javax.swing.JButton();
         phteman = new javax.swing.JLabel();
+        jk = new javax.swing.JComboBox<>();
+        jLabel6 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Aplikasi Daftar Teman");
+        setAlwaysOnTop(true);
         setMaximumSize(null);
         setMinimumSize(new java.awt.Dimension(450, 450));
 
@@ -208,9 +225,6 @@ public class jForm1 extends javax.swing.JFrame {
 
         txTELP.setText("jTextField3");
 
-        jLabel5.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jLabel5.setText("ID Teman");
-
         txIDTEMAN.setText("jTextField1");
 
         cTambah.setText("Tambah");
@@ -243,48 +257,57 @@ public class jForm1 extends javax.swing.JFrame {
 
         phteman.setBackground(new java.awt.Color(0, 0, 0));
         phteman.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        phteman.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+
+        jk.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
+        jLabel6.setText("Jenis Kelamin");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 509, Short.MAX_VALUE)
+            .addComponent(jScrollPane1)
             .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(137, 137, 137)
-                        .addComponent(jLabel1))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addContainerGap()
+                        .addComponent(cTambah, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(cUpdate)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(cDelete)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(cClose))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(phteman, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txIDTEMAN, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(cTambah, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(cUpdate)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(cDelete)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(cClose))
-                            .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(jLabel2)
-                                            .addComponent(jLabel3)
-                                            .addComponent(jLabel4))
-                                        .addGap(32, 32, 32)
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                            .addComponent(txALAMAT, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 259, Short.MAX_VALUE)
-                                            .addComponent(txNAMA, javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(txTELP)))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(jLabel5)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(txIDTEMAN, javax.swing.GroupLayout.PREFERRED_SIZE, 254, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(phteman, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 0, Short.MAX_VALUE)))))
-                .addContainerGap())
+                                    .addComponent(jLabel2)
+                                    .addComponent(jLabel3)
+                                    .addComponent(jLabel4))
+                                .addGap(44, 44, 44))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(txALAMAT, javax.swing.GroupLayout.PREFERRED_SIZE, 375, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                    .addComponent(jk, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(txTELP, javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(txNAMA, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 259, Short.MAX_VALUE))
+                                .addGap(0, 0, Short.MAX_VALUE))))))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(137, 137, 137)
+                .addComponent(jLabel1)
+                .addGap(10, 10, 10))
         );
 
         layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {cClose, cDelete, cTambah, cUpdate});
@@ -296,13 +319,10 @@ public class jForm1 extends javax.swing.JFrame {
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 222, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(phteman, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel5)
-                            .addComponent(txIDTEMAN, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(5, 5, 5)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel2)
                             .addComponent(txNAMA, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -313,18 +333,21 @@ public class jForm1 extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel4)
-                            .addComponent(txTELP, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(26, 26, 26)
-                        .addComponent(phteman, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addGap(18, 18, 18)
+                            .addComponent(txTELP, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel6)
+                        .addComponent(txIDTEMAN, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jk, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 90, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(cClose, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(cTambah, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(cUpdate, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(cDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(17, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         pack();
@@ -332,11 +355,15 @@ public class jForm1 extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jTable1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable1MouseClicked
+        tombol(true);
         txIDTEMAN.setText( jTable1.getValueAt( jTable1.getSelectedRow(),0).toString() );
         txNAMA.setText( jTable1.getValueAt( jTable1.getSelectedRow(),1).toString() );
         txALAMAT.setText( jTable1.getValueAt( jTable1.getSelectedRow(),2).toString() );
         txTELP.setText( jTable1.getValueAt( jTable1.getSelectedRow(),3).toString() );
-        tombol(true);
+        String jkx = jTable1.getValueAt( jTable1.getSelectedRow(),4).toString();
+        jk.setSelectedIndex(1);
+        if(jkx.equals("Perempuan"))
+            jk.setSelectedIndex(2);
         loadphoto(txIDTEMAN.getText());
     }//GEN-LAST:event_jTable1MouseClicked
 
@@ -468,9 +495,10 @@ public class jForm1 extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
+    private javax.swing.JComboBox<String> jk;
     private javax.swing.JLabel phteman;
     private javax.swing.JTextField txALAMAT;
     private javax.swing.JTextField txIDTEMAN;
